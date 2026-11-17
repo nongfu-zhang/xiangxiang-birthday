@@ -275,6 +275,13 @@ document.addEventListener('click', kickstart);
 document.addEventListener('touchend', kickstart);
 setTimeout(kickstart, 800);
 
+/* 微信内自动播放：WeixinJSBridge 就绪后触发一次 */
+if (typeof WeixinJSBridge === 'object' && typeof WeixinJSBridge.invoke === 'function') {
+  WeixinJSBridge.invoke('getNetworkType', {}, kickstart);
+} else {
+  document.addEventListener('WeixinJSBridgeReady', kickstart, false);
+}
+
 /* ============ 音乐开关 ============ */
 var musicBtn = document.getElementById('musicToggle');
 function syncMusicBtn(){ musicBtn.classList.toggle('off', !musicOn); }
