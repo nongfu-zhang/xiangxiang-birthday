@@ -88,6 +88,16 @@
   .hint.show{opacity:1;transform:translateY(0);}
   .hint b{color:#c0392b;}
 
+  .start-overlay{position:fixed;inset:0;z-index:90;display:flex;flex-direction:column;align-items:center;justify-content:center;
+    background:radial-gradient(ellipse at center,rgba(26,17,10,.82),rgba(11,7,5,.94));
+    transition:opacity .5s;}
+  .start-overlay.hide{opacity:0;pointer-events:none;}
+  .start-btn{font-size:22px;font-weight:800;letter-spacing:2px;color:#2a1a08;
+    background:linear-gradient(135deg,#ffe9ad,#e6b450 55%,#d69b32);
+    border:none;border-radius:100px;padding:18px 44px;cursor:pointer;
+    box-shadow:0 0 0 4px rgba(255,233,173,.35),0 12px 40px rgba(0,0,0,.6),0 0 30px rgba(230,180,80,.7);
+    animation:fabPulse 2.2s ease-in-out infinite;}
+  .start-sub{margin-top:18px;font-size:14px;letter-spacing:3px;color:#d8c49a;}
   #confetti{position:fixed;inset:0;pointer-events:none;z-index:60;}
   @media (max-width:360px){ h2.big{font-size:42px;} p.body{font-size:17px;} .num{font-size:100px;} }
 </style>
@@ -95,6 +105,11 @@
 <body>
 
 <div class="glow"></div>
+
+<div class="start-overlay" id="startOverlay">
+  <button class="start-btn" id="startBtn">🎵 点我开始播放</button>
+  <div class="start-sub">含背景音乐</div>
+</div>
 
 <div class="stage" id="stage">
 
@@ -240,7 +255,7 @@ function tryPlay(){
   if(!musicOn) return;
   var p = bgm.play();
   if(p && p.then){
-    p.then(function(){ playFailed = false; hideHint(); })
+    p.then(function(){ playFailed = false; hideHint(); dismissOverlay(); })
      .catch(function(){ markPlayFailed(); });
   }
 }
@@ -293,6 +308,22 @@ musicBtn.addEventListener('click', function(){
   syncMusicBtn();
 });
 syncMusicBtn();
+
+/* ============ 开始播放按钮（最稳的出声方式：一次点击手势） ============ */
+var overlay = document.getElementById('startOverlay');
+function dismissOverlay(){
+  if(!overlay) return;
+  overlay.classList.add('hide');
+  setTimeout(function(){ if(overlay && overlay.parentNode) overlay.parentNode.removeChild(overlay); }, 600);
+}
+if(overlay){
+  overlay.addEventListener('click', function(){
+    musicOn = true; playFailed = false; hideHint(); syncMusicBtn();
+    dismissOverlay();
+    try{ startMusic(); }catch(e){}
+    startAuto();
+  });
+}
 
 /* ============ 彩带 ============ */
 var cv = document.getElementById('confetti'), ctx = cv.getContext('2d'), parts = [];
